@@ -1,25 +1,23 @@
 from flask import Flask, render_template, request
 import qrcode
 import os
+from io import BytesIO
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 
 #routing
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
-        if os.path.isfile("./static/ytqr.png"):
-            os.remove("./static/ytqr.png")
         link = request.form.get("link")
-        qr = qrcode.QRCode(version=1, box_size=5, border=5)
-        qr.add_data(link)
-        qr.make()
-        img = qr.make_image(fill_color = 'black', back_color = 'white')
-        img.save("./static/ytqr.png")
-        return render_template("home.html")
+        qr = qrcode.make(link)
+        encoded = BytesIO()
+        qr.save(encoded)
+        bytes_enc = encoded.getvalue() #conversione sbagliata
+        stringa = "data:image/png; base64," + str(bytes_enc)
+        print(bytes_enc)
+        return render_template("home.html", encoded=stringa)
     else:
-        if os.path.isfile("./static/ytqr.png"):
-            os.remove("./static/ytqr.png")
         return render_template("home.html")
 
 

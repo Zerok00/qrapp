@@ -48,4 +48,6 @@ COPY . .
 EXPOSE 5000
 
 # Run the application.
-CMD python main.py
+ENTRYPOINT [ "python" ]
+
+CMD ["main.py"]
