@@ -9,15 +9,23 @@ app = Flask(__name__, static_folder="static")
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
+        if os.path.exists("/app/static/ytqr.png"):
+            os.chmod("/app/static/ytqr.png", 0o666)
+        os.chmod("/app/static", 0o666)
         link = request.form.get("link")
-        qr = qrcode.make(link)
-        encoded = BytesIO()
-        qr.save(encoded)
-        bytes_enc = encoded.getvalue() #conversione sbagliata
-        stringa = "data:image/png; base64," + str(bytes_enc)
-        print(bytes_enc)
-        return render_template("home.html", encoded=stringa)
+
+        qr = qrcode.QRCode(version = 1, box_size = 5, border = 5)
+        qr.add_data(link)
+        qr.make()
+
+        img = qr.make_image(fill_color = 'black', back_color = 'white')
+        img.save("/app/static/ytqr.png")
+        
+        return render_template("home.html")
     else:
+        if os.path.exists("/app/static/ytqr.png"):
+            os.chmod("/app/static/ytqr.png", 0o666)
+            os.remove("/app/static/ytqr.png")
         return render_template("home.html")
 
 
